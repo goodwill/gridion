@@ -7,16 +7,16 @@ require "gridion/version"
 Gem::Specification.new do |s|
   s.name        = "gridion"
   s.version     = Gridion::VERSION
-  s.authors     = ["TODO: Your name"]
-  s.email       = ["TODO: Your email"]
-  s.homepage    = "TODO"
-  s.summary     = "TODO: Summary of Gridion."
-  s.description = "TODO: Description of Gridion."
+  s.authors     = ["William Yeung"]
+  s.email       = ["william@tofugear.com"]
+  s.homepage    = "http://github.com/goodwill/gridion"
+  s.summary     = "Simple grid helper for rails"
+  s.description = "Simple grid helper for rails"
 
   s.files = Dir["{app,config,db,lib}/**/*"] + ["MIT-LICENSE", "Rakefile", "README.rdoc"]
   s.test_files = Dir["test/**/*"]
 
-  s.add_dependency "rails", "~> 3.1.0"
+  s.add_dependency "activesupport", ">= 3.0.0"
 
   s.add_development_dependency "sqlite3"
 end
