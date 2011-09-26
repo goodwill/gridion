@@ -71,13 +71,20 @@ module Gridion
         end
 
         grid_binding.row do  |klass, object, options={}|
+          object_list=
+            if options.has_key?(:parent)
+              (options[:parent] + [object]).flatten 
+            else
+              [object]
+            end
+            
           result =""
           result << "<tr id=\"#{klass.name}_#{object.id}\">"
           (options[:columns]||klass.column_names).each do |col|
             result << "<td>#{object.send(col)}</td>"
           end
-          result << "<td>#{link_to 'Edit', [:edit, object ]}</td>"
-          result << "<td>#{link_to 'Delete', object, :method=>:delete, :confirm=>'Are you sure?'}</td>"
+          result << "<td>#{link_to 'Edit', [:edit]+ object_list}</td>"
+          result << "<td>#{link_to 'Delete', object_list, :method=>:delete, :confirm=>'Are you sure?'}</td>"
           result << "</tr>"
           safe_concat(result)
 
