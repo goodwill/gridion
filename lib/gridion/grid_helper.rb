@@ -38,12 +38,15 @@ module Gridion
 
       # we need to initialize the procs in the helper context otherwise other helpers inside the proc object (e.g. link_to) wont work
 
+      
+      options={:actions=>[:edit, :delete]}.merge(options).with_indifferent_access
+      
 
-
+      
       unless collection.blank?
         grid_binding.header.call(collection.first.class, collection, options)
 
-        collection.each {|object| grid_binding.row.call(object.class, object, options) }
+        collection.each_with_index {|object, i| grid_binding.row.call(object.class, object, options.merge(:row_is_even=>i%2==1)) } #index starts from 0 
         
         grid_binding.paginator.call(collection.first.class, collection, options) if collection.respond_to?(:current_page) && defined?(Kaminari) # we assume only Kaminari is supported
           
@@ -66,25 +69,31 @@ module Gridion
             col_label = sort_link(options[:q], col, col_label) if defined?(:sort_link) && options.has_key?(:q)
             safe_concat("<th>#{col_label}</th>")
           end
-          safe_concat("<th>Actions</th>")
+          safe_concat("<th class=\"actions\">Actions</th>")
           safe_concat("</tr>")
         end
 
         grid_binding.row do  |klass, object, options={}|
           object_list=
             if options.has_key?(:parent)
-              (options[:parent] + [object]).flatten 
+              ([options[:parent]] + [object]).flatten 
             else
               [object]
             end
+            puts "options: #{options.inspect}"
             
           result =""
-          result << "<tr id=\"#{klass.name}_#{object.id}\">"
+          result << "<tr id=\"#{klass.name}_#{object.id}\" class=\"#{options[:row_is_even] ? 'even' : 'odd'}\">"
           (options[:columns]||klass.column_names).each do |col|
-            result << "<td>#{object.send(col)}</td>"
+            result << "<td class=\"#{col}\">#{object.send(col)}</td>"
           end
-          result << "<td>#{link_to 'Edit', [:edit]+ object_list}</td>"
-          result << "<td>#{link_to 'Delete', object_list, :method=>:delete, :confirm=>'Are you sure?'}</td>"
+          actions=options[:actions]
+          
+          result << "<td class=\"actions\">"
+          result << "#{link_to 'Show', object_list, :class=>%w{action_link show}}" if actions.include?(:show)
+          result << "#{link_to 'Edit', [:edit]+ object_list, :class=>%w{action_link edit}}" if actions.include?(:edit)
+          result << "#{link_to 'Delete', object_list, :class=>%w{action_link delete}, :method=>:delete, :confirm=>'Are you sure?'}"  if actions.include?(:delete)
+          result << "</td>"
           result << "</tr>"
           safe_concat(result)
 
