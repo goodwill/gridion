@@ -69,6 +69,7 @@ module Gridion
             col_label = sort_link(options[:q], col, col_label) if defined?(:sort_link) && options.has_key?(:q)
             safe_concat("<th>#{col_label}</th>")
           end
+          safe_concat("<th class=\"children\"></th>") if options.has_key?(:children)
           safe_concat("<th class=\"actions\">Actions</th>")
           safe_concat("</tr>")
         end
@@ -84,11 +85,24 @@ module Gridion
             
           result =""
           result << "<tr id=\"#{klass.name}_#{object.id}\" class=\"#{options[:row_is_even] ? 'even' : 'odd'}\">"
+          formats=(options[:formats]||{}).with_indifferent_access
           (options[:columns]||klass.column_names).each do |col|
-            result << "<td class=\"#{col}\">#{object.send(col)}</td>"
+            value=object.send(col)
+            if formats.has_key?(col)
+              value=number_to_currency(value) if formats[col]==:currency
+            end
+            result << "<td class=\"#{col}\">#{value}</td>"
           end
           actions=options[:actions]
           
+          if options.has_key?(:children)
+            result << "<td class=\"children\">"
+            options[:children].each do |child|
+              label= child.to_s.singularize.classify.constantize.model_name.human.pluralize
+              result << link_to(label, [object, child], :class=>"child_link #{child.to_s}")
+            end
+            result << "</td>"
+          end
           result << "<td class=\"actions\">"
           result << "#{link_to 'Show', object_list, :class=>%w{action_link show}}" if actions.include?(:show)
           result << "#{link_to 'Edit', [:edit]+ object_list, :class=>%w{action_link edit}}" if actions.include?(:edit)

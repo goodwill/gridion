@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    gridion (0.0.6)
+    gridion (0.0.8)
 
 GEM
   remote: http://rubygems.org/
