@@ -89,7 +89,19 @@ module Gridion
           (options[:columns]||klass.column_names).each do |col|
             value=object.send(col)
             if formats.has_key?(col)
-              value=number_to_currency(value) if formats[col]==:currency
+              
+              if formats[col]==:currency
+                value=number_to_currency(value) 
+              elsif formats[col].kind_of?(Hash)
+                if formats[col].has_key?(:date)
+                  value=value.try(:to_date).try(:to_s, formats[col][:date])
+                end
+              elsif formats[col].kind_of?(Proc)
+                # use hook
+                value=formats[col].call(value)
+              end
+              
+            
             end
             result << "<td class=\"#{col}\">#{value}</td>"
           end
@@ -103,11 +115,22 @@ module Gridion
             end
             result << "</td>"
           end
+
+          if actions.present?
           result << "<td class=\"actions\">"
-          result << "#{link_to 'Show', object_list, :class=>%w{action_link show}}" if actions.include?(:show)
-          result << "#{link_to 'Edit', [:edit]+ object_list, :class=>%w{action_link edit}}" if actions.include?(:edit)
-          result << "#{link_to 'Delete', object_list, :class=>%w{action_link delete}, :method=>:delete, :confirm=>'Are you sure?'}"  if actions.include?(:delete)
-          result << "</td>"
+            if actions.kind_of?(Proc)
+              result << actions.call(object, options)
+            elsif actions.kind_of?(Array)
+              result << "#{link_to 'Show', object_list, :class=>%w{action_link show}}" if actions.include?(:show)
+              result << "#{link_to 'Edit', [:edit]+ object_list, :class=>%w{action_link edit}}" if actions.include?(:edit)
+              result << "#{link_to 'Delete', object_list, :class=>%w{action_link delete}, :method=>:delete, :confirm=>'Are you sure?'}"  if actions.include?(:delete)
+            elsif actions.kind_of?(Hash)
+              result << "#{link_to 'Show', object_list, {:class=>%w{action_link show}}.merge(actions[:show]||{})}" if actions.has_key?(:show)
+              result << "#{link_to 'Edit', [:edit]+ object_list, {:class=>%w{action_link edit}}.merge(actions[:edit]||{})}" if actions.include?(:edit)
+              result << "#{link_to 'Delete', object_list, {:class=>%w{action_link delete}, :method=>:delete, :confirm=>'Are you sure?'}.merge(actions[:delete]||{})}"  if actions.include?(:delete)
+            end
+            result << "</td>"
+          end
           result << "</tr>"
           safe_concat(result)
 
