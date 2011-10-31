@@ -81,7 +81,11 @@ module Gridion
             else
               [object]
             end
-            puts "options: #{options.inspect}"
+
+          if options.has_key?(:namespace)
+            namespaces=options[:namespace]
+            object_list = ([namespaces] + object_list).flatten
+          end
             
           result =""
           result << "<tr id=\"#{klass.name}_#{object.id}\" class=\"#{options[:row_is_even] ? 'even' : 'odd'}\">"
@@ -111,7 +115,7 @@ module Gridion
             result << "<td class=\"children\">"
             options[:children].each do |child|
               label= child.to_s.singularize.classify.constantize.model_name.human.pluralize
-              result << link_to(label, [object, child], :class=>"child_link #{child.to_s}")
+              result << link_to(label, [namespaces, object, child].flatten, :class=>"child_link #{child.to_s}")
             end
             result << "</td>"
           end
