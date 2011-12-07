@@ -43,7 +43,12 @@ module Gridion
       
 
       
-      unless collection.blank?
+      if collection.blank?
+        if options[:render_empty_grid]
+          grid_binding.header.call(options[:object_class], collection, options)
+          grid_binding.footer.call(options[:object_class], collection, options)
+        end
+      else
         grid_binding.header.call(collection.first.class, collection, options)
 
         collection.each_with_index {|object, i| grid_binding.row.call(object.class, object, options.merge(:row_is_even=>i%2==1)) } #index starts from 0 
@@ -62,15 +67,17 @@ module Gridion
       with_output_buffer do
         grid_binding.header do |klass, collection, options={}|
           safe_concat("<table class=\"#{klass.name.downcase}\">")
+
+          columns=options[:columns]||klass.column_names
+
           safe_concat("<tr>")
-          
-          (options[:columns]||klass.column_names).each do |col|
+          (columns).each do |col|
             col_label=klass.human_attribute_name(col)
             col_label = sort_link(options[:q], col, col_label) if defined?(:sort_link) && options.has_key?(:q)
             safe_concat("<th>#{col_label}</th>")
           end
-          safe_concat("<th class=\"children\"></th>") if options.has_key?(:children)
           safe_concat("<th class=\"actions\">Actions</th>")
+          safe_concat("<th class=\"children\"></th>") if options.has_key?(:children)
           safe_concat("</tr>")
         end
 
@@ -88,40 +95,43 @@ module Gridion
           end
             
           result =""
-          result << "<tr id=\"#{klass.name}_#{object.id}\" class=\"#{options[:row_is_even] ? 'even' : 'odd'}\">"
+          aux_columns={}
+          aux_columns=options[:aux_columns].with_indifferent_access if options.has_key?(:aux_columns)
+          
           formats=(options[:formats]||{}).with_indifferent_access
-          (options[:columns]||klass.column_names).each do |col|
-            value=object.send(col)
-            if formats.has_key?(col)
-              
-              if formats[col]==:currency
-                value=number_to_currency(value) 
-              elsif formats[col].kind_of?(Hash)
-                if formats[col].has_key?(:date)
-                  value=value.try(:to_date).try(:to_s, formats[col][:date])
-                end
-              elsif formats[col].kind_of?(Proc)
-                # use hook
-                value=formats[col].call(value)
-              end
-              
+          actions=options[:actions]
+          columns=options[:columns]||klass.column_names
+
+          row_id="#{klass.name}_#{object.id}"
+          
+          result << "<tr id=\"#{row_id}\" class=\"#{options[:row_is_even] ? 'even' : 'odd'}\">"
+          (columns).each do |col|
+            if aux_columns[col].present?
+              value=aux_columns[col].call(object, options)
+            else
+              value=object.send(col)
+              if formats.has_key?(col)
             
+                if formats[col]==:currency
+                  value=number_to_currency(value) 
+                elsif formats[col].kind_of?(Hash)
+                  if formats[col].has_key?(:date)
+                    value=value.try(:to_date).try(:to_s, formats[col][:date])
+                  elsif formats[col].has_key?(:datetime)
+                    value=value.try(:to_s, formats[col][:datetime])
+                  end
+                elsif formats[col].kind_of?(Proc)
+                  # use hook
+                  value=formats[col].call(value)
+                end
+              end
             end
             result << "<td class=\"#{col}\">#{value}</td>"
           end
-          actions=options[:actions]
-          
-          if options.has_key?(:children)
-            result << "<td class=\"children\">"
-            options[:children].each do |child|
-              label= child.to_s.singularize.classify.constantize.model_name.human.pluralize
-              result << link_to(label, [namespaces, object, child].flatten, :class=>"child_link #{child.to_s}")
-            end
-            result << "</td>"
-          end
+            
 
           if actions.present?
-          result << "<td class=\"actions\">"
+            result << "<td class=\"actions\">"
             if actions.kind_of?(Proc)
               result << actions.call(object, options)
             elsif actions.kind_of?(Array)
@@ -135,6 +145,26 @@ module Gridion
             end
             result << "</td>"
           end
+          
+          if options.has_key?(:children)
+            result << "<td class=\"children\">"
+            children_hash=
+              if options[:children].kind_of?(Array)
+                options[:children].each_with_object({}) {|child, h| h[child]=child.to_s.singularize.classify.constantize.model_name.human.pluralize }
+              else
+                options[:children].keys.each_with_object({}) {|child, h| h[child]=options[:children][child]||child.to_s.singularize.classify.constantize.model_name.human.pluralize} 
+              end
+
+            children_hash.keys.each do |child|
+              label= children_hash[child]
+              label||= child.to_s.singularize.classify.constantize.model_name.human.pluralize
+              result << link_to(label, [namespaces, object, child].flatten, :class=>"child_link #{child.to_s}")
+            end
+          
+            result << "</td>"
+          end
+
+          
           result << "</tr>"
           safe_concat(result)
 
