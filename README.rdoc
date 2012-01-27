@@ -6,6 +6,6 @@ License: MIT-LICENSE
 
 Use +grid+ helper to render table with various options.
 
-+grid(@patents, :object_class=>Patent, :columns=>%w(coverage_countries_serial patent_number_serial title grant_date status availability_serial), :actions=>nil, :paginate=>false)
++grid(@patents, :object_class=>Patent, :columns=>%w(coverage_countries_serial patent_number_serial title grant_date status availability_serial), :actions=>nil, :paginate=>false)+
 
 
