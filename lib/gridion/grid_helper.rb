@@ -57,6 +57,7 @@ module Gridion
       options[:table_body_wrapper_tag]="tbody"
       options[:table_row_tag]||="tr"
       options[:table_cell_tag]||="td"
+      options[:paginate]||=true
       
       if collection.blank?
         if options[:render_empty_grid]
@@ -71,7 +72,7 @@ module Gridion
         collection.each_with_index {|object, i| grid_binding.row.call(object.class, object, options.merge(:row_is_even=>i%2==1)) } #index starts from 0 
         
         if collection.respond_to?(:current_page) && defined?(Kaminari) # we assume only Kaminari is supported
-          grid_binding.paginator.call(collection.first.class, collection, options) if collection.num_pages > 1
+          grid_binding.paginator.call(collection.first.class, collection, options) if collection.num_pages > 1 && options[:paginate]==true
         end
           
         
