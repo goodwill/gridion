@@ -1,0 +1,13 @@
+h1. Gridion
+
+License: MIT-LICENSE
+
+h2. Features
+
+Use @grid@ helper to render table with various options.
+
+<pre>
+grid(@patents, :object_class=>Patent, :columns=>%w(coverage_countries_serial patent_number_serial title grant_date status availability_serial), :actions=>nil, :paginate=>false)
+</pre>
+
+
