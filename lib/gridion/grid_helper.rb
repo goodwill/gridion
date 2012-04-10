@@ -105,7 +105,7 @@ module Gridion
             col_label = sort_link(options[:q], col, col_label) if defined?(:sort_link) && options.has_key?(:q) && options[:q].present?  
             safe_concat("<#{table_header_tag} class=\"header_cell #{col.to_s.parameterize.underscore}\">#{col_label}</#{table_header_tag}>")
           end
-          safe_concat("<#{table_header_tag} class=\"actions\">Actions</#{table_header_tag}>") unless options[:actions].blank?
+          safe_concat("<#{table_header_tag} class=\"actions\">#{I18n.t("gridion.headers.actions", "Actions")}</#{table_header_tag}>") unless options[:actions].blank?
           safe_concat("<#{table_header_tag} class=\"children\"></#{table_header_tag}>") if options.has_key?(:children)
           safe_concat("</#{table_row_tag}>")
           safe_concat("</#{table_header_wrapper_tag}>")  if table_header_wrapper_tag.present?
