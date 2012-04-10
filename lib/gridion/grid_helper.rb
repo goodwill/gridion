@@ -57,7 +57,8 @@ module Gridion
       options[:table_body_wrapper_tag]="tbody"
       options[:table_row_tag]||="tr"
       options[:table_cell_tag]||="td"
-      options[:paginate]||=true
+      options[:paginate]=true unless options.has_key?(:paginate)
+
       
       if collection.blank?
         if options[:render_empty_grid]
@@ -73,6 +74,7 @@ module Gridion
         
         if collection.respond_to?(:current_page) && defined?(Kaminari) # we assume only Kaminari is supported
           grid_binding.paginator.call(collection.first.class, collection, options) if collection.num_pages > 1 && options[:paginate]==true
+
         end
           
         
@@ -100,7 +102,7 @@ module Gridion
           
           (columns).each do |col|
             col_label=klass.human_attribute_name(col)
-            col_label = sort_link(options[:q], col, col_label) if defined?(:sort_link) && options.has_key?(:q)
+            col_label = sort_link(options[:q], col, col_label) if defined?(:sort_link) && options.has_key?(:q) && options[:q].present?  
             safe_concat("<#{table_header_tag} class=\"header_cell #{col.to_s.parameterize.underscore}\">#{col_label}</#{table_header_tag}>")
           end
           safe_concat("<#{table_header_tag} class=\"actions\">Actions</#{table_header_tag}>") unless options[:actions].blank?
@@ -168,13 +170,13 @@ module Gridion
             if actions.kind_of?(Proc)
               result << actions.call(object, options)
             elsif actions.kind_of?(Array)
-              result << "#{link_to 'Show', object_list, :class=>%w{action_link show}}" if actions.include?(:show)
-              result << "#{link_to 'Edit', [:edit]+ object_list, :class=>%w{action_link edit}}" if actions.include?(:edit)
-              result << "#{link_to 'Delete', object_list, :class=>%w{action_link delete}, :method=>:delete, :confirm=>'Are you sure?'}"  if actions.include?(:delete)
+              result << "#{link_to I18n.t("gridion.actions.show", default: "Show"), object_list, :class=>%w{action_link show}}" if actions.include?(:show)
+              result << "#{link_to I18n.t("gridion.actions.edit", default: "Edit"), [:edit]+ object_list, :class=>%w{action_link edit}}" if actions.include?(:edit)
+              result << "#{link_to I18n.t("gridion.actions.delete", default: "Delete"), object_list, :class=>%w{action_link delete}, :method=>:delete, :confirm=>'Are you sure?'}"  if actions.include?(:delete)
             elsif actions.kind_of?(Hash)
-              result << "#{link_to 'Show', object_list, {:class=>%w{action_link show}}.merge(actions[:show]||{})}" if actions.has_key?(:show)
-              result << "#{link_to 'Edit', [:edit]+ object_list, {:class=>%w{action_link edit}}.merge(actions[:edit]||{})}" if actions.include?(:edit)
-              result << "#{link_to 'Delete', object_list, {:class=>%w{action_link delete}, :method=>:delete, :confirm=>'Are you sure?'}.merge(actions[:delete]||{})}"  if actions.include?(:delete)
+              result << "#{link_to I18n.t("gridion.actions.show", default: "Show"), object_list, {:class=>%w{action_link show}}.merge(actions[:show]||{})}" if actions.has_key?(:show)
+              result << "#{link_to I18n.t("gridion.actions.edit", default: "Edit"), [:edit]+ object_list, {:class=>%w{action_link edit}}.merge(actions[:edit]||{})}" if actions.include?(:edit)
+              result << "#{link_to I18n.t("gridion.actions.delete", default: "Delete"), object_list, {:class=>%w{action_link delete}, :method=>:delete, :confirm=>'Are you sure?'}.merge(actions[:delete]||{})}"  if actions.include?(:delete)
             end
             result << "</#{table_cell_tag}>"
           end

@@ -13,7 +13,7 @@ Gem::Specification.new do |s|
   s.summary     = "Simple grid helper for rails"
   s.description = "Simple grid helper for rails"
 
-  s.files = Dir["{app,config,db,lib}/**/*"] + ["MIT-LICENSE", "Rakefile", "README.rdoc"]
+  s.files = Dir["{app,config,db,lib}/**/*"] + ["MIT-LICENSE", "Rakefile", "README.textile"]
   s.test_files = Dir["test/**/*"]
 
 
