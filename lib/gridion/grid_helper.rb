@@ -209,12 +209,13 @@ module Gridion
           table_tag = options[:table_tag]
           table_row_tag=options[:table_row_tag]
           table_cell_tag=options[:table_cell_tag]
+          paginate_param_name=options[:paginate_param_name]||"page"
           
           colspans=(options[:columns]||klass.column_names).count + 1 + (options[:actions].blank? ? 0 : 1) #TODO: change this to number of action columns
           result = ""
           result << "<#{table_row_tag} class=\"paginator\">"
           result << "<#{table_cell_tag} colspan=\"#{colspans}\">"
-          result << paginate(collection)
+          result << paginate(collection, param_name: paginate_param_name)
           result << "</#{table_cell_tag}>"
           result << "</#{table_row_tag}>"
           safe_concat(result)

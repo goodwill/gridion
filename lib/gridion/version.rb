@@ -1,3 +1,3 @@
 module Gridion
-  VERSION = "0.0.24"
+  VERSION = "0.0.26"
 end
