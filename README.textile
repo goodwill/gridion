@@ -7,7 +7,12 @@ h2. Features
 Use @grid@ helper to render table with various options.
 
 <pre>
-grid(@patents, :object_class=>Patent, :columns=>%w(coverage_countries_serial patent_number_serial title grant_date status availability_serial), :actions=>nil, :paginate=>false)
+grid(@patents, :object_class=>Patent, :columns=>%w(coverage_countries_serial patent_number_serial title grant_date status availability_serial), :actions=>nil, :paginate=>false, :render_empty_grid=>true, :object_class=>Patent)
 </pre>
+
+h2. Parameters
+h3. render__empty__grid
+
+Render grid even if there is no data, you need to use that with :object__class as there is no model the grid could use to extract metadata against.
 
 

@@ -139,7 +139,7 @@ module Gridion
 
           row_id="#{klass.name}_#{object.id}"
           
-          result << "<#{table_row_tag} id=\"#{row_id}\" class=\"#{options[:row_is_even] ? 'even' : 'odd'}\">"
+          result << "<#{table_row_tag} id=\"#{row_id}\" data-id=\"#{object.id}\" class=\"#{options[:row_is_even] ? 'even' : 'odd'}\">"
           (columns).each do |col|
             if aux_columns[col].present?
               value=aux_columns[col].call(object, options)
