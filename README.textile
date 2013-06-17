@@ -11,8 +11,13 @@ grid(@patents, :object_class=>Patent, :columns=>%w(coverage_countries_serial pat
 </pre>
 
 h2. Parameters
-h3. render__empty__grid
+
+h3. render_empty_grid
 
 Render grid even if there is no data, you need to use that with :object__class as there is no model the grid could use to extract metadata against.
+
+h3. paginate
+
+Turns on pagination (Kaminari required)
 
 

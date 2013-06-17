@@ -93,6 +93,7 @@ module Gridion
           table_header_tag=options[:table_header_tag]||"th"
           table_header_wrapper_tag=options[:table_header_wrapper_tag]||"thead"
           table_body_wrapper_tag=options[:table_body_wrapper_tag]||"tbody"
+          skip_field_class=options[:skip_field_class]||false
           table_classes=[options[:class]].flatten.compact
           safe_concat("<#{table_tag} class=\"#{klass.name.downcase} #{table_classes.join(' ')}\">")
           
@@ -103,7 +104,7 @@ module Gridion
           (columns).each do |col|
             col_label=klass.human_attribute_name(col)
             col_label = sort_link(options[:q], col, col_label) if defined?(:sort_link) && options.has_key?(:q) && options[:q].present?  
-            safe_concat("<#{table_header_tag} class=\"header_cell #{col.to_s.parameterize.underscore}\">#{col_label}</#{table_header_tag}>")
+            safe_concat("<#{table_header_tag} class=\"header_cell #{col.to_s.parameterize.underscore unless skip_field_class}\">#{col_label}</#{table_header_tag}>")
           end
           safe_concat("<#{table_header_tag} class=\"actions\">#{I18n.t("gridion.headers.actions", "Actions")}</#{table_header_tag}>") unless options[:actions].blank?
           safe_concat("<#{table_header_tag} class=\"children\"></#{table_header_tag}>") if options.has_key?(:children)
@@ -116,6 +117,7 @@ module Gridion
           table_tag = options[:table_tag]||"table"
           table_row_tag=options[:table_row_tag]||"tr"
           table_cell_tag=options[:table_cell_tag]||"td"
+          skip_field_class=options[:skip_field_class]||false
           
           object_list=
             if options.has_key?(:parent)
@@ -161,7 +163,7 @@ module Gridion
                 end
               end
             end
-            result << "<#{table_cell_tag} class=\"#{col}\">#{value}</#{table_cell_tag}>"
+            result << "<#{table_cell_tag} #{"class=\"#{col}\"" unless skip_field_class}>#{value}</#{table_cell_tag}>"
           end
             
 
