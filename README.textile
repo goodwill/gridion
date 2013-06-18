@@ -7,7 +7,7 @@ h2. Features
 Use @grid@ helper to render table with various options.
 
 <pre>
-grid(@patents, :object_class=>Patent, :columns=>%w(coverage_countries_serial patent_number_serial title grant_date status availability_serial), :actions=>nil, :paginate=>false, :render_empty_grid=>true, :object_class=>Patent)
+grid(@patents, :object_class=>Patent, :columns=>%w(coverage_countries_serial patent_number_serial title grant_date status availability_serial), :actions=>nil, :paginate=>false, :skip_field_class=>true, :render_empty_grid=>true, :object_class=>Patent)
 </pre>
 
 h2. Parameters
@@ -19,5 +19,9 @@ Render grid even if there is no data, you need to use that with :object__class a
 h3. paginate
 
 Turns on pagination (Kaminari required)
+
+h4. skip_field_class
+
+Turn off all field (th/td) column class name
 
 
